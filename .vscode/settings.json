@@ -1,0 +1,10 @@
+{
+    "rust.rustLangSrcPath": "h:/Proyectos_rust",
+    "rust.rustfmtPath": "c:/Users/saturnozmarte/.cargo/bin/rustfmt.exe",
+    "rust.rustsymPath": "c:/Users/saturnozmarte/.cargo/bin/rustsym.exe",
+    "rust.racerPath": "c:/Users/saturnozmarte/.cargo/bin/racer.exe",
+    "rust.formatOnSave": true,
+    "rust.useNewErrorFormat" : true
+
+
+}

@@ -1,0 +1,10 @@
+[package]
+name = "main"
+version = "0.1.0"
+authors = ["zwenderk <zwenderk@hotmail.com>"]
+
+[dependencies]
+sdl2 = "0.31"
+lazy_static = "1.0"
+log = "0.4.6"
+simple_logger = "1.0.1"

@@ -1,0 +1,13 @@
+TIME           THREAD   TYPE        DATA
+15:36:47.116:: 00014616 [Core]      x360ce 3.3.1.444 [Hacked Gamepad BY SARATH GAMER.exe - 3140] 
+15:36:47.137:: 00014616 [Core]      http://code.google.com/p/x360ce 
+15:36:47.210:: 00014616 [Core]      [PAD1] Initializing UserIndex 0 
+15:36:47.223:: 00014616 [DInput]    [PAD1] Enumerating UserIndex 0 
+15:36:47.306:: 00014616 [DInput]    [PAD1] Device "Thrustmaster dual analog 3.2" created 
+15:36:47.324:: 00014616 [DInput]    [PAD1] Detected axis count: 4 
+15:36:47.339:: 00014616 [Core]      [PAD1] Device Initialized 
+15:36:47.354:: 00014616 [Core]      Loading C:\WINDOWS\system32\xinput1_3.dll 
+15:39:32.724:: 00015452 [HookWMI]   HookCoUninitializeW 
+15:40:21.360:: 00014616 [HookWMI]   HookCoCreateInstanceW:: Removing Hook 
+15:40:21.374:: 00014616 [HookWMI]   HookCoUninitializeW:: Removing Hook 
+15:40:21.389:: 00014616 [Core]      x360ce terminating, bye 

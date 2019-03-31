@@ -1,7 +1,15 @@
 [package]
-name = "main"
+name = "rusty-kong"
 version = "0.1.0"
 authors = ["zwenderk <zwenderk@hotmail.com>"]
+
+#[[bin]]
+#name="rusty-kong"
+#path="main/src/game/main.rs"
+
+#[[bin]]
+#name="ripper"
+#path="main/src/ripper/main.rs"
 
 [dependencies]
 sdl2 = "0.31"

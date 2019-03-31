@@ -60,9 +60,15 @@ lazy_static! { // Macro que crea variables static
     static ref BG1_CNTL: Vec<BackgroundControlBlock>=vec!();
 }
 
+fn video_bg(canvas: &mut WindowCanvas) {}
+
+fn video_fg(canvas: &mut WindowCanvas) {}
+
 pub fn video_update(canvas: &mut WindowCanvas) {
     canvas.set_draw_color(Color::RGB(255, 0, 0));
     canvas.clear();
+    video_bg(canvas);
+    video_fg(canvas);
     canvas.present();
 }
 

@@ -64,9 +64,6 @@ use self::player_dies::*;
 use self::player_wins::*;
 use self::kong_retreats::*;
 use std::cell::RefMut;
-//use std::fmt::Display;
-//use sdl2::Error;
-
 
 mod attract;
 mod boot;
@@ -138,9 +135,6 @@ lazy_static! {
     );
 }
 
-
-
-
 pub fn game_state_go(state: GameState) {
     unsafe {
         STATE.next = state;
@@ -159,6 +153,7 @@ pub fn game_state_update() {
     unsafe {
         if STATE.next != GameState::None {
             STATE.previous = STATE.current;
+            debug!("transición desde {}.", STATE.previous);
             let previous_handlers = get_state_handlers(STATE.previous);
             debug!("llamando {}_leave.", STATE.previous);
             (previous_handlers.leave)();

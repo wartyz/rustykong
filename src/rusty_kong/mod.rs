@@ -105,7 +105,7 @@ fn game_render(canvas: &mut WindowCanvas) {
 }
 
 fn game_update(controller: &GameController) {
-    use self::state_machine::game_state_go;
+    //use self::state_machine::game_state_go;
     use self::state_machine::game_state_update;
 
 

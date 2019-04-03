@@ -6,7 +6,6 @@ extern crate log;
 extern crate sdl2;
 extern crate simple_logger;
 
-
 mod rusty_kong;
 
 fn main() {

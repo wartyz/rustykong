@@ -15,12 +15,10 @@ mod player;
 mod video;
 mod sound;
 
-
 struct SystemInterfaces {
     controller: GameController,
     canvas: WindowCanvas,
 }
-
 
 fn controller_init(sdl_context: &Sdl) -> GameController {
     let subsystem = sdl_context.game_controller().unwrap();
@@ -75,7 +73,6 @@ fn controller_init(sdl_context: &Sdl) -> GameController {
     controller
 }
 
-
 pub fn game_run() {
     let context = sdl2::init().unwrap();
     let mut system_interfaces = game_init(&context).unwrap();
@@ -97,7 +94,6 @@ pub fn game_run() {
     }
 }
 
-
 fn game_render(canvas: &mut WindowCanvas) {
     use rusty_kong::video::video_update;
 
@@ -107,7 +103,6 @@ fn game_render(canvas: &mut WindowCanvas) {
 fn game_update(controller: &GameController) {
     //use self::state_machine::game_state_go;
     use self::state_machine::game_state_update;
-
 
     game_state_update();
 }

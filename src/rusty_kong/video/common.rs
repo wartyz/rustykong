@@ -1,11 +1,18 @@
-pub const SCREEN_WIDTH: u32 = 224;
+use std::option::Option;
+
+
+use sdl2::surface::Surface;
+use sdl2::pixels::PixelFormatEnum;
+
+pub const SCREEN_WIDTH: u32 = 256;
 pub const SCREEN_HEIGHT: u32 = 256;
 
 pub const TILE_WIDTH: u32 = 8;
 pub const TILE_HEIGHT: u32 = 8;
 pub const TILE_MAX: u32 = 256;
-pub const TILE_COL_COUNT: u32 = SCREEN_WIDTH / TILE_WIDTH;
-pub const TILE_ROW_COUNT: u32 = SCREEN_HEIGHT / TILE_HEIGHT;
+pub const TILE_COL_COUNT: u32 = 32;
+pub const TILE_ROW_COUNT: u32 = 32;
+pub const TILE_CNTL_MAX: u32 = TILE_ROW_COUNT * TILE_COL_COUNT;
 
 pub const SPRITE_WIDTH: u32 = 16;
 pub const SPRITE_HEIGHT: u32 = 16;
@@ -24,6 +31,11 @@ pub const F_BG_HFLIP: u8 = 0b00000010;
 pub const F_BG_VFLIP: u8 = 0b00000100;
 pub const F_BG_CHANGED: u8 = 0b00001000;
 
+pub enum TileMaps {
+    LongIntroduction,
+    Level1,
+}
+
 #[derive(Copy, Clone)]
 pub struct Palette {
     pub entries: [PaletteEntry; 4],
@@ -37,7 +49,18 @@ pub struct PaletteEntry {
     pub a: u8,
 }
 
-use sdl2::surface::SurfaceRef;
+
+#[derive(Copy, Clone)]
+pub struct TileMapEntry {
+    pub tile: u16,
+    pub flags: u8,
+    pub palette: u8,
+}
+
+#[derive(Copy, Clone)]
+pub struct TileMap {
+    pub entries: [TileMapEntry; (TILE_ROW_COUNT * TILE_COL_COUNT) as usize]
+}
 
 #[derive(Copy, Clone)]
 pub struct SpriteControlBlock {
@@ -48,14 +71,33 @@ pub struct SpriteControlBlock {
     palette: u8,
     user_data1: u32,
     user_data2: u32,
-    //surface: SurfaceRef,
 }
 
-impl SpriteControlBlock {
-    pub fn new_control_table() -> [SpriteControlBlock; SPRITE_MAX as usize] {
-        [SpriteControlBlock::new_empty(); SPRITE_MAX as usize]
-    }
+pub struct SpriteControlTable {
+    table: [SpriteControlBlock; SPRITE_MAX as usize],
+    surfaces: Vec<Option<Surface<'static>>>,
+}
 
+impl SpriteControlTable {
+    pub fn new() -> SpriteControlTable {
+        let mut table = SpriteControlTable {
+            surfaces: vec![],
+            table: [SpriteControlBlock::new_empty(); SPRITE_MAX as usize],
+        };
+
+        for _i in 0..SPRITE_MAX {
+            let surface = Surface::new(
+                16,
+                16,
+                PixelFormatEnum::Index8)
+                .unwrap();
+            table.surfaces.push(Some(surface));
+        }
+        table
+    }
+}
+
+impl<'a> SpriteControlBlock {
     pub fn new_empty() -> SpriteControlBlock {
         SpriteControlBlock {
             y: 0,
@@ -65,7 +107,6 @@ impl SpriteControlBlock {
             flags: F_SPR_NONE,
             user_data1: 0,
             user_data2: 0,
-            //surface: (),
         }
     }
 
@@ -161,11 +202,31 @@ pub struct BackgroundControlBlock {
     user_data2: u32,
 }
 
-impl BackgroundControlBlock {
-    pub fn new_control_table() -> [BackgroundControlBlock; (TILE_ROW_COUNT * TILE_COL_COUNT) as usize] {
-        [BackgroundControlBlock::new_empty(); (TILE_ROW_COUNT * TILE_COL_COUNT) as usize]
-    }
+pub struct BackgroundControlTable {
+    table: [BackgroundControlBlock; TILE_CNTL_MAX as usize],
+    surfaces: Vec<Option<Surface<'static>>>,
+}
 
+impl BackgroundControlTable {
+    pub fn new() -> BackgroundControlTable {
+        let mut table = BackgroundControlTable {
+            surfaces: vec![],
+            table: [BackgroundControlBlock::new_empty(); TILE_CNTL_MAX as usize],
+        };
+
+        for _i in 0..TILE_CNTL_MAX {
+            let surface = Surface::new(
+                16,
+                16,
+                PixelFormatEnum::Index8)
+                .unwrap();
+            table.surfaces.push(Some(surface));
+        }
+        table
+    }
+}
+
+impl BackgroundControlBlock {
     pub fn new_empty() -> BackgroundControlBlock {
         BackgroundControlBlock {
             tile: 0,

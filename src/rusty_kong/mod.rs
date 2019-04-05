@@ -1,23 +1,27 @@
 use std::time::Duration;
 
 use sdl2;
-use sdl2::controller::GameController;
+
+use sdl2::Sdl;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::render::WindowCanvas;
-use sdl2::Sdl;
-use simple_logger;
+use sdl2::controller::GameController;
 
-use rusty_kong::video::video_update;
+use self::video::VideoGenerator;
+use self::state_machine::GameState;
+use rusty_kong::state_machine::game_state_init;
 
 mod state_machine;
 mod player;
+mod level;
 mod video;
 mod sound;
 
-struct SystemInterfaces {
+struct SystemInterfaces<'a> {
     controller: GameController,
-    canvas: WindowCanvas,
+    video: VideoGenerator<'a>,
+    game_state: GameState,
 }
 
 fn controller_init(sdl_context: &Sdl) -> GameController {
@@ -74,10 +78,12 @@ fn controller_init(sdl_context: &Sdl) -> GameController {
 }
 
 pub fn game_run() {
+    use rusty_kong::video::video_update;
+
     let context = sdl2::init().unwrap();
     let mut system_interfaces = game_init(&context).unwrap();
-    let mut event_pump = context.event_pump().unwrap();
 
+    let mut event_pump = context.event_pump().unwrap();
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -87,34 +93,20 @@ pub fn game_run() {
                 _ => {}
             }
         }
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
-        game_update(&mut system_interfaces.controller);
-        game_render(&mut system_interfaces.canvas);
-        // The rest of the game loop goes here...
+        system_interfaces.game_state.update(&system_interfaces.controller);
+        video_update(&mut system_interfaces.video);
     }
 }
 
-fn game_render(canvas: &mut WindowCanvas) {
-    use rusty_kong::video::video_update;
-
-    video_update(canvas);
-}
-
-fn game_update(controller: &GameController) {
-    //use self::state_machine::game_state_go;
-    use self::state_machine::game_state_update;
-
-    game_state_update();
-}
 
 fn game_init(context: &Sdl) -> Result<SystemInterfaces, String> {
     use self::state_machine::game_state_init;
     use rusty_kong::video::video_init;
 
-    game_state_init();
-
     Ok(SystemInterfaces {
+        game_state: game_state_init(),
+        video: video_init(&context),
         controller: controller_init(&context),
-        canvas: video_init(&context),
+
     })
 }

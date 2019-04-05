@@ -10,13 +10,12 @@ use sdl2::controller::GameController;
 
 use self::video::VideoGenerator;
 use self::state_machine::GameState;
-use rusty_kong::state_machine::game_state_init;
 
-mod state_machine;
-mod player;
-mod level;
 mod video;
 mod sound;
+mod level;
+mod player;
+mod state_machine;
 
 struct SystemInterfaces<'a> {
     controller: GameController,
@@ -36,21 +35,19 @@ fn controller_init(sdl_context: &Sdl) -> GameController {
             }
         };
 
-    println!("{} joysticks available", available);
+    info!("{} joysticks available", available);
 
     let mut controller = None;
 
-    // Iterate over all available joysticks and look for game
-    // controllers.
+    // Iterate over all available joysticks and look for game controllers.
     for id in 0..available {
         if subsystem.is_game_controller(id) {
-            println!("Attempting to open controller {}", id);
+            info!("Attempting to open controller {}", id);
 
             match subsystem.open(id) {
                 Ok(c) => {
-                    // We managed to find and open a game controller,
-                    // exit the loop
-                    println!("Success: opened \"{}\"", c.name());
+                    // We managed to find and open a game controller, exit the loop
+                    info!("Success: opened \"{}\"", c.name());
                     controller = Some(c);
                     break;
                 }

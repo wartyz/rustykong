@@ -50,12 +50,8 @@ pub struct PaletteEntry {
 }
 
 
-#[derive(Copy, Clone)]
-pub struct TileMapEntry {
-    pub tile: u16,
-    pub flags: u8,
-    pub palette: u8,
-}
+#[derive(Copy, Clone, Hash, Eq, PartialEq)]
+pub struct TileMapEntry(pub u16, pub u8, pub u8);
 
 #[derive(Copy, Clone)]
 pub struct TileMap {
@@ -223,6 +219,23 @@ impl BackgroundControlTable {
             table.surfaces.push(Some(surface));
         }
         table
+    }
+    pub fn set(&mut self, tile_map: TileMaps) {
+        use super::tile_maps::INTRO_MAP;
+
+        match tile_map {
+            TileMaps::LongIntroduction => {
+                let mut index = 0;
+                for entry in INTRO_MAP.iter() {
+                    let mut block = self.table[index];
+                    block.tile(entry.0);
+                    block.palette(entry.1);
+                    index += 1;
+                }
+            }
+
+            _ => {}
+        }
     }
 }
 

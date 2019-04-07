@@ -1,4 +1,5 @@
 use std::convert::AsMut;
+use std::rc::Rc;
 use std::cell::RefCell;
 use std::marker::Sync;
 use std::fmt::Error;
@@ -10,6 +11,7 @@ use sdl2::controller::GameController;
 
 use super::level::Level;
 use super::player::JumpMan;
+use super::SystemInterfaces;
 
 use self::attract::*;
 use self::boot::*;
@@ -20,6 +22,17 @@ use self::long_introduction::*;
 use self::player_dies::*;
 use self::player_wins::*;
 use self::state_nop::*;
+
+mod boot;
+mod attract;
+mod long_introduction;
+mod how_high;
+mod state_nop;
+mod game_play;
+mod player_dies;
+mod player_wins;
+mod kong_retreats;
+
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum GameStates {
@@ -50,6 +63,7 @@ impl Display for GameStates {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
 struct States {
     previous: GameStates,
     current: GameStates,
@@ -58,56 +72,62 @@ struct States {
 
 struct StateHandlers {
     state: GameStates,
-    enter: fn(&GameState),
-    leave: fn(&GameState),
     first_update: RefCell<bool>,
-    update: fn(&GameState, &GameController),
+    enter: fn(&SystemInterfaces),
+    leave: fn(&SystemInterfaces),
+    update: fn(&SystemInterfaces),
 }
 
 impl StateHandlers {
-    pub fn perfom_enter(&self, game_state: &GameState) {
+    pub fn perfom_enter(&self, system: &SystemInterfaces) {
         debug!("llamando {}_enter.", self.state);
-        (self.enter)(game_state);
+        (self.enter)(system);
     }
 
-    pub fn perfom_leave(&self, game_state: &GameState) {
+    pub fn perfom_leave(&self, system: &SystemInterfaces) {
         debug!("llamando {}_leave.", self.state);
-        (self.leave)(game_state);
+        (self.leave)(system);
         let mut first_update = self.first_update.borrow_mut();
         *first_update = true;
     }
 
     pub fn perfom_update(
         &self,
-        game_state: &GameState,
-        controller: &GameController) {
+        system: &SystemInterfaces) {
         let mut first_update = self.first_update.borrow_mut();
         if *first_update {
             debug!("llamando {}_update.", self.state);
             debug!("NOTA: solo la primera llamada");
             *first_update = false;
         }
-        (self.update)(game_state, controller);
+        (self.update)(system);
     }
 }
 
 pub struct GameState {
     level: Level,
     player: JumpMan,
-    states: States,
+    current: GameStates,
+    previous: GameStates,
+    next: GameStates,
+    //states: RefCell<States>,
     handlers: Vec<StateHandlers>,
 }
 
 impl GameState {
+    pub fn init() -> GameState {
+        let mut game_state = GameState::new();
+        game_state.transition_to(GameStates::Boot);
+        game_state
+    }
+
     pub fn new() -> GameState {
         GameState {
             level: Level::new(),
             player: JumpMan::new(),
-            states: States {
-                previous: GameStates::None,
-                current: GameStates::None,
-                next: GameStates::None,
-            },
+            previous: GameStates::None,
+            current: GameStates::None,
+            next: GameStates::None,
             handlers: vec![
                 StateHandlers {
                     state: GameStates::None,
@@ -177,28 +197,28 @@ impl GameState {
     }
 
     fn is_pending_transition(&self) -> bool {
-        self.states.next != GameStates::None
+        self.next != GameStates::None
     }
 
-    fn transition_states(&mut self) {
-        debug!("transición a: {}.", self.states.next);
-        self.states.previous = self.states.current;
-        self.states.current = self.states.next;
-        self.states.next = GameStates::None;
-        self.leave_previous();
-        self.enter_current();
+    fn transition_states(&mut self, system: &SystemInterfaces) {
+        debug!("transición a: {}.", self.next);
+        self.previous = self.current;
+        self.current = self.next;
+        self.next = GameStates::None;
+        self.leave_previous(system);
+        self.enter_current(system)
     }
 
     fn next_handlers(&self) -> &StateHandlers {
-        self.handlers(self.states.next)
+        self.handlers(self.next)
     }
 
     fn current_handlers(&self) -> &StateHandlers {
-        self.handlers(self.states.current)
+        self.handlers(self.current)
     }
 
     fn previous_handlers(&self) -> &StateHandlers {
-        self.handlers(self.states.previous)
+        self.handlers(self.previous)
     }
 
     fn handlers(&self, state: GameStates) -> &StateHandlers {
@@ -206,49 +226,34 @@ impl GameState {
     }
 
     pub fn transition_to(&mut self, state: GameStates) {
-        self.states.next = state;
+        self.next = state;
     }
 
-    fn enter_current(&self) {
+    fn enter_current(&self, system: &SystemInterfaces) {
         let current_handlers = self.current_handlers();
-        current_handlers.perfom_enter(self);
+        current_handlers.perfom_enter(system);
     }
 
-    fn leave_previous(&self) {
+    fn leave_previous(&self, system: &SystemInterfaces) {
         let previous_handlers = self.previous_handlers();
-        previous_handlers.perfom_leave(self);
+        previous_handlers.perfom_leave(system);
     }
 
-    fn perform_update(&self, controller: &GameController) {
-        self.current_handlers().perfom_update(self, controller);
+    fn perform_update(&self, system: &SystemInterfaces) {
+        self.current_handlers().perfom_update(system);
     }
 
-    pub fn update(
-        &mut self,
-        controller: &GameController) {
+    pub fn update(&mut self, system: &SystemInterfaces) {
         if self.is_pending_transition() {
-            self.transition_states();
+            self.transition_states(system);
         } else {
-            self.perform_update(controller);
+            self.perform_update(system);
         }
     }
 }
 
-mod boot;
-mod attract;
-mod long_introduction;
-mod how_high;
-mod state_nop;
-mod game_play;
-mod player_dies;
-mod player_wins;
-mod kong_retreats;
 
-pub fn game_state_init() -> GameState {
-    let mut game_state = GameState::new();
-    game_state.transition_to(GameStates::Boot);
-    game_state
-}
+
 
 
 

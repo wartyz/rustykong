@@ -28,11 +28,43 @@ use sdl2::pixels::PixelFormatEnum;
 //    static ref SPR_CNTL: SpriteControlTable = SpriteControlTable::new();
 //    static ref BG1_CNTL: [BackgroundControlBlock; (TILE_ROW_COUNT * TILE_COL_COUNT) as usize] = BackgroundControlBlock::new_control_table();
 
-pub struct VideoGenerator<'a> {
+pub struct VideoGenerator {
     canvas: WindowCanvas,
-    bg_surface: Surface<'a>,
+    bg_surface: Surface<'static>,
     spr_cntl: SpriteControlTable,
     bg1_cntl: BackgroundControlTable,
+}
+
+impl VideoGenerator {
+    pub fn init(context: &Sdl) -> VideoGenerator {
+        let video_subsystem = context.video().unwrap();
+        let window = video_subsystem.window("Rusty Kong", SCREEN_WIDTH * 4, SCREEN_HEIGHT * 4)
+            .position_centered()
+            .opengl()
+            .build()
+            .unwrap();
+        let canvas = window
+            .into_canvas()
+            .present_vsync()
+            .build()
+            .unwrap();
+        let bg_surface = Surface::new(256, 256, PixelFormatEnum::Index8)
+            .unwrap();
+        VideoGenerator {
+            canvas,
+            bg_surface,
+            spr_cntl: SpriteControlTable::new(),
+            bg1_cntl: BackgroundControlTable::new(),
+        }
+    }
+
+    pub fn update(&mut self) {
+        self.canvas.present();
+    }
+
+    pub fn set_bg(&mut self, tile_map: TileMaps) {
+        self.bg1_cntl.set(tile_map);
+    }
 }
 
 fn video_bg(video: &mut VideoGenerator) {

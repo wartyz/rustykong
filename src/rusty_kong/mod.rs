@@ -1,28 +1,27 @@
+use std::cell::RefCell;
+
+use sdl2;
+use sdl2::controller::GameController;
+use sdl2::event::Event;
+use sdl2::EventPump;
+use sdl2::keyboard::Keycode;
+use sdl2::Sdl;
+
+use self::state_machine::GameState;
+use self::state_machine::GameStates;
+use self::video::TileMaps;
+use self::video::VideoGenerator;
+
 mod level;
 mod player;
 mod state_machine;
 mod video;
 
-use std::cell::RefCell;
-
-use sdl2;
-use sdl2::Sdl;
-use sdl2::EventPump;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::controller::GameController;
-
-use self::video::TileMaps;
-use self::video::VideoGenerator;
-
-use self::state_machine::GameState;
-use self::state_machine::GameStates;
-
 
 pub struct SystemInterfaces {
-    transition_target: RefCell<GameStates>,
+    //transition_target: RefCell<GameStates>,
     context: Option<Sdl>,
-    game_state: RefCell<GameState>,
+    game_state: Option<RefCell<GameState>>,
     event_pump: Option<RefCell<EventPump>>,
     video_gen: Option<RefCell<VideoGenerator>>,
     controller: Option<RefCell<GameController>>,
@@ -35,14 +34,14 @@ impl SystemInterfaces {
             event_pump: None,
             controller: None,
             video_gen: None,
-            game_state: RefCell::new(GameState::init()),
-            transition_target: RefCell::new(GameStates::None),
+            game_state: None,
         };
         system.init();
         system
     }
 
     pub fn init(&mut self) {
+        self.game_state = Some(RefCell::new(GameState::init(self)));
         self.context = Some(sdl2::init().unwrap());
         self.event_pump = Some(RefCell::new(self.context.as_ref().unwrap().event_pump().unwrap()));
         self.video_gen = Some(RefCell::new(VideoGenerator::init(self.context.as_ref().unwrap())));
@@ -61,15 +60,14 @@ impl SystemInterfaces {
                 }
             }
             {
-                let mut game_state = self.game_state.borrow_mut();
-                game_state.update(self);
-
-                let mut target = self.transition_target.borrow_mut();
-                if *target != GameStates::None {
-                    game_state.transition_to(*target);
-                    *target = GameStates::None;
-                }
-
+                let mut game_state = self
+                    .game_state
+                    .as_ref()
+                    .unwrap()
+                    .borrow_mut();
+                game_state.update();
+            }
+            {
                 let mut video_gen = self
                     .video_gen
                     .as_ref()
@@ -110,13 +108,6 @@ impl SystemInterfaces {
                 warn!("{} is not a game controller", id);
             }
         }
-    }
-
-    pub fn set_bg(&self, tile_map: TileMaps) {}
-
-    pub fn transition_to(&self, state: GameStates) {
-        let mut target = self.transition_target.borrow_mut();
-        *target = state;
     }
 }
 

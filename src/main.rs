@@ -5,6 +5,7 @@ extern crate lazy_static;
 extern crate log;
 extern crate sdl2;
 extern crate simple_logger;
+extern crate core;
 
 mod rusty_kong;
 

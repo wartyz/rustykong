@@ -104,11 +104,11 @@ pub struct GameState {
     current: GameStates,
     previous: GameStates,
     handlers: Vec<Rc<StateHandlers>>,
-    system: Rc<Option<&'static SystemInterfaces>>,
+    system: Option<Rc<RefCell<&'static SystemInterfaces>>>,
 }
 
 impl GameState {
-    pub fn init(system: &SystemInterfaces) -> GameState {
+    pub fn init(system: &'static SystemInterfaces) -> GameState {
         let mut game_state = GameState::new();
         game_state.system(system);
         game_state.transition_to(GameStates::Boot);
@@ -117,7 +117,7 @@ impl GameState {
 
     pub fn new() -> GameState {
         GameState {
-            system: Rc::new(None),
+            system: None,
             level: Level::new(),
             player: JumpMan::new(),
             previous: GameStates::None,
@@ -192,10 +192,10 @@ impl GameState {
         }
     }
 
-    fn system(&mut self, system: &SystemInterfaces) {
-        let mut clone = self.system.clone();
-        let mut sys = clone.borrow_mut();
-        *sys = Rc::new(Some(system));
+    fn system(&mut self, system: &'static SystemInterfaces) {
+        let mut clone = self.system.as_ref().unwrap().clone();
+        let mut sys = (*clone).borrow_mut();
+        *sys = system;
     }
 
     fn is_pending_transition(&self) -> bool {
@@ -240,7 +240,9 @@ impl GameState {
     }
 
     pub fn set_bg(&mut self, tile_map: TileMaps) {
-
+        let mut clone = self.system.as_ref().unwrap().clone();
+        let sys = clone.borrow_mut();
+        //let mut video_gen=sys.video_gen.as_ref().unwrap().clone();
     }
 }
 

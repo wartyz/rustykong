@@ -14,6 +14,7 @@ use self::state_machine::GameState;
 use self::state_machine::GameStates;
 use self::video::TileMaps;
 use self::video::VideoGenerator;
+use self::state_machine::GameStateContext;
 
 mod level;
 mod player;
@@ -22,7 +23,6 @@ mod video;
 
 
 pub struct SystemInterfaces {
-    //transition_target: RefCell<GameStates>,
     context: Option<Sdl>,
     game_state: Option<Rc<RefCell<GameState>>>,
     event_pump: Option<Rc<RefCell<EventPump>>>,
@@ -46,7 +46,7 @@ impl SystemInterfaces {
 
     pub fn init(&mut self) {
         self.context = Some(sdl2::init().unwrap());
-        self.game_state = Some(Rc::new(RefCell::new(GameState::init(self))));
+        self.game_state = Some(Rc::new(RefCell::new(GameState::init())));
         self.event_pump = Some(Rc::new(RefCell::new(self.context.as_ref().unwrap().event_pump().unwrap())));
         self.video_gen = Some(Rc::new(RefCell::new(VideoGenerator::init(self.context.as_ref().unwrap()))));
         self.controller_init();
@@ -65,12 +65,16 @@ impl SystemInterfaces {
                 }
             }
             {
-                let mut clone = self.game_state.as_ref().unwrap().clone();
+                let clone = self.game_state.as_ref().unwrap().clone();
                 let mut game_state = (*clone).borrow_mut();
-                game_state.update();
+                let game_state_context = GameStateContext::new();
+                game_state.update(&game_state_context);
+                game_state_context.process(
+                    game_state.deref_mut(),
+                    self);
             }
             {
-                let mut clone = self.video_gen.as_ref().unwrap().clone();
+                let clone = self.video_gen.as_ref().unwrap().clone();
                 let mut video_gen = (*clone).borrow_mut();
                 video_gen.update();
             }

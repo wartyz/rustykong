@@ -1,8 +1,8 @@
 use super::SystemInterfaces;
-use super::GameState;
+use super::GameStateContext;
 
-pub fn attract_enter(game_state: &mut GameState) {}
+pub fn attract_enter(contex: &GameStateContext) {}
 
-pub fn attract_leave(game_state: &mut GameState) {}
+pub fn attract_leave(contex: &GameStateContext) {}
 
-pub fn attract_update(game_state: &mut GameState) {}
+pub fn attract_update(contex: &GameStateContext) {}

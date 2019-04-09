@@ -1,7 +1,7 @@
-use super::GameState;
+use super::GameStateContext;
 
-pub fn player_dies_enter(game_state: &mut GameState) {}
+pub fn player_dies_enter(context: &GameStateContext) {}
 
-pub fn player_dies_leave(game_state: &mut GameState) {}
+pub fn player_dies_leave(context: &GameStateContext) {}
 
-pub fn player_dies_update(game_state: &mut GameState) {}
+pub fn player_dies_update(context: &GameStateContext) {}

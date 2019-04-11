@@ -143,10 +143,6 @@ pub struct GameState {
     handlers: Vec<Rc<StateHandlers>>,
 }
 
-//trait GameCommand {
-//    fn execute(&self, game_state: &mut GameState, system: &mut SystemInterfaces);
-//}
-
 pub struct SetBackgroundGameCommand {
     tile_map: Option<TileMaps>,
 }

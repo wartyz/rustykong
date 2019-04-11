@@ -12,7 +12,11 @@ authors = ["zwenderk <zwenderk@hotmail.com>"]
 #path="main/src/ripper/main.rs"
 
 [dependencies]
-sdl2 = "0.31"
 lazy_static = "1.0"
 log = "0.4.6"
 simple_logger = "1.0.1"
+
+[dependencies.sdl2]
+    version = "0.31"
+    default-features = false
+    features = ["ttf","image","gfx","mixer"]

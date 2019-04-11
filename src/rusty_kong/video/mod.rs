@@ -1,7 +1,8 @@
-mod common;
+pub mod common;
 
 use self::common::*;
 pub use self::common::TileMaps;
+pub use self::common::F_SPR_ENABLED;
 
 mod palettes;
 
@@ -77,8 +78,12 @@ impl VideoGenerator {
             _ => {}
         };
 
-        self.spr_cntl.update();
+        self.spr_cntl.update(&mut self.canvas);
         self.canvas.present();
+    }
+
+    pub fn sprite(&mut self, number: u8, x: u16, y: u16, tile: u16, palette: u8, flags: u8){
+        self.spr_cntl.sprite(number, x, y, tile, palette, flags);
     }
 
     pub fn set_bg(&mut self, tile_map: TileMaps) {

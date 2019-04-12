@@ -1,5 +1,4 @@
 use std::cell::RefCell;
-use std::option::Option;
 
 use super::sprites::get_sprite_bitmap;
 use super::tiles::get_tile_bitmap;
@@ -10,9 +9,7 @@ use sdl2::pixels::Color;
 use sdl2::surface::Surface;
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::pixels::Palette as SdlPalette;
-use sdl2::render::TextureCreator;
 use sdl2::render::WindowCanvas;
-use sdl2::gfx::primitives::DrawRenderer;
 
 pub const SCREEN_WIDTH: u32 = 256;
 pub const SCREEN_HEIGHT: u32 = 256;
@@ -101,8 +98,8 @@ impl SpriteControlTable {
             let palette = SdlPalette::with_colors(&get_palette_colors()).unwrap();
 
             surface.enable_RLE();
-            surface.set_palette(&palette);
-            surface.set_color_key(true, Color::RGBA(0, 0, 0, 0xff));
+            surface.set_palette(&palette).unwrap();
+            surface.set_color_key(true, Color::RGBA(0, 0, 0, 0xff)).unwrap();
             table.surfaces.push(RefCell::new(surface));
         }
         table
@@ -110,7 +107,7 @@ impl SpriteControlTable {
 
     pub fn update(&mut self, canvas: &mut WindowCanvas) {
         let mut sprite_number: usize = 0;
-        let mut texture_creator = canvas.texture_creator();
+        let texture_creator = canvas.texture_creator();
 
         for block in self.table.iter_mut() {
             let mut surface = self.surfaces[sprite_number].borrow_mut();
@@ -164,7 +161,8 @@ impl SpriteControlTable {
                 canvas.copy(
                     &sprite_texture,
                     None,
-                    Rect::new(block.x as i32, block.y as i32, 16 * 4, 16 * 4));
+                    Rect::new(block.x as i32, block.y as i32, 16 * 4, 16 * 4))
+                    .unwrap();
             }
 
 
@@ -173,7 +171,7 @@ impl SpriteControlTable {
     }
 
     pub fn sprite(&mut self, number: u8, x: u16, y: u16, tile: u16, palette: u8, flags: u8) {
-        let mut block = &mut self.table[number as usize];
+        let block = &mut self.table[number as usize];
         block.x = x;
         block.y = y;
         block.tile = tile;
@@ -306,7 +304,7 @@ impl BackgroundControlTable {
                 PixelFormatEnum::Index8)
                 .unwrap();
             let palette = SdlPalette::with_colors(&get_palette_colors()).unwrap();
-            surface.set_palette(&palette);
+            surface.set_palette(&palette).unwrap();
             table.surfaces.push(RefCell::new(surface));
         }
         table
@@ -359,7 +357,7 @@ impl BackgroundControlTable {
                     }
                 });
                 block.changed(false);
-                surface.blit(None, bg_surface, tile_rect);
+                surface.blit(None, bg_surface, tile_rect).unwrap();
             }
 
             tile_rect.offset(8, 0);

@@ -58,7 +58,7 @@ impl SystemInterfaces {
     }
 
     pub fn event_pump(&mut self) {
-        let mut clone = self.event_pump.as_ref().unwrap().clone();
+        let clone = self.event_pump.as_ref().unwrap().clone();
         let mut event_pump = (*clone).borrow_mut();
         'running: loop {
             for event in event_pump.poll_iter() {

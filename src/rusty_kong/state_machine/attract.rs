@@ -1,4 +1,3 @@
-use super::SystemInterfaces;
 use super::GameStateContext;
 
 pub fn attract_enter(contex: &GameStateContext) {}

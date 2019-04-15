@@ -1,14 +1,11 @@
 use std::cell::RefCell;
-use std::convert::AsMut;
 use std::fmt::Display;
 use std::fmt::Error;
 use std::fmt::Formatter;
-use std::marker::Sync;
-use std::ptr::null_mut;
 use std::rc::Rc;
 use std::boxed::Box;
 
-use sdl2::controller::GameController;
+//use sdl2::controller::GameController;
 
 use super::level::Level;
 use super::player::JumpMan;
@@ -24,7 +21,6 @@ use self::long_introduction::*;
 use self::player_dies::*;
 use self::player_wins::*;
 use self::state_nop::*;
-use core::borrow::BorrowMut;
 use self::commands::*;
 
 

@@ -2,13 +2,10 @@ use std::rc::Rc;
 
 use std::cell::RefCell;
 use std::option::Option;
-use std::borrow::Borrow;
-use std::borrow::BorrowMut;
 use std::marker::Sync;
 
 use sdl2::TimerSubsystem;
 use sdl2::timer::TimerCallback;
-use sdl2::timer::Timer;
 
 use super::SpriteControlTable;
 
